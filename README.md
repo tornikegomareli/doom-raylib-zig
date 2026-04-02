@@ -20,7 +20,22 @@ Not yet implemented:
 - Multiplayer networking
 - Fullscreen / Retina support
 
-## Building
+## Install via Homebrew
+
+```
+brew tap tornikegomareli/doom-raylib-zig https://github.com/tornikegomareli/doom-raylib-zig
+brew install macdoom
+```
+
+Then run:
+
+```
+macdoom
+```
+
+The shareware `doom1.wad` is installed automatically. No extra setup needed.
+
+## Building from Source
 
 Requirements:
 - macOS 12+ (Apple Silicon or Intel)
@@ -31,10 +46,14 @@ Requirements:
 ```
 cd macdoom
 zig build
-./zig-out/bin/doom
+./zig-out/bin/macdoom
 ```
 
-The shareware WAD (`doom1.wad`, 4MB) is freely distributable but not included in this repo.
+You can also specify custom raylib paths (e.g. on Intel Macs):
+
+```
+zig build -Draylib-include-path=/usr/local/include -Draylib-lib-path=/usr/local/lib
+```
 
 ## Controls
 
