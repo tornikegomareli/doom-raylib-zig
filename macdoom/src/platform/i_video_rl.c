@@ -189,9 +189,6 @@ void I_InitGraphics(void)
     SetTextureFilter(fb_texture, TEXTURE_FILTER_POINT);
 
     // Grab mouse for FPS-style input
-    if (grabmouse)
-        DisableCursor();
-
     memset(prev_keys, 0, sizeof(prev_keys));
 
     initialized = 1;
@@ -221,11 +218,27 @@ void I_StartTic(void)
     if (WindowShouldClose())
         I_Quit();
 
+    {
+        static int cursor_grabbed = 0;
+        if (menuactive && cursor_grabbed)
+        {
+            EnableCursor();
+            cursor_grabbed = 0;
+        }
+        else if (!menuactive && !cursor_grabbed)
+        {
+            DisableCursor();
+            cursor_grabbed = 1;
+        }
+    }
+
     event_t ev;
 
     /// Movement keys write directly to gamekeydown[] instead of using
     /// D_PostEvent, because DOOM's event queue timing causes keyup events
     /// to clear gamekeydown before G_BuildTiccmd reads it.
+    /// Only during gameplay — menu arrow keys must not move the character.
+    if (!menuactive)
     {
         gamekeydown[key_up]    = IsKeyDown(KEY_W) || IsKeyDown(KEY_UP);
         gamekeydown[key_down]  = IsKeyDown(KEY_S) || IsKeyDown(KEY_DOWN);
@@ -236,6 +249,17 @@ void I_StartTic(void)
         gamekeydown[key_use]   = IsKeyDown(KEY_SPACE);
         gamekeydown[key_speed] = IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT);
         gamekeydown[key_strafe]= IsKeyDown(KEY_LEFT_ALT) || IsKeyDown(KEY_RIGHT_ALT);
+    }
+    else
+    {
+        gamekeydown[key_up]    = 0;
+        gamekeydown[key_down]  = 0;
+        gamekeydown[key_left]  = 0;
+        gamekeydown[key_right] = 0;
+        gamekeydown[key_fire]  = 0;
+        gamekeydown[key_use]   = 0;
+        gamekeydown[key_speed] = 0;
+        gamekeydown[key_strafe]= 0;
     }
 
     /// Menu/UI keys still use the event system since M_Responder needs events.
@@ -320,21 +344,26 @@ void I_StartTic(void)
         }
     }
 
+    /// Mouse input: only send to game when not in menu.
+    /// Always consume delta so it doesn't accumulate across frames.
     {
-        int buttons = 0;
-        if (IsMouseButtonDown(MOUSE_BUTTON_LEFT))   buttons |= 1;
-        if (IsMouseButtonDown(MOUSE_BUTTON_RIGHT))  buttons |= 2;
-        if (IsMouseButtonDown(MOUSE_BUTTON_MIDDLE)) buttons |= 4;
-
         Vector2 delta = GetMouseDelta();
 
-        if (buttons || delta.x != 0.0f || delta.y != 0.0f)
+        if (!menuactive)
         {
-            ev.type = ev_mouse;
-            ev.data1 = buttons;
-            ev.data2 = (int)(delta.x * 5);
-            ev.data3 = (int)(-delta.y * 5);
-            D_PostEvent(&ev);
+            int buttons = 0;
+            if (IsMouseButtonDown(MOUSE_BUTTON_LEFT))   buttons |= 1;
+            if (IsMouseButtonDown(MOUSE_BUTTON_RIGHT))  buttons |= 2;
+            if (IsMouseButtonDown(MOUSE_BUTTON_MIDDLE)) buttons |= 4;
+
+            if (buttons || delta.x != 0.0f || delta.y != 0.0f)
+            {
+                ev.type = ev_mouse;
+                ev.data1 = buttons;
+                ev.data2 = (int)(delta.x * 5);
+                ev.data3 = (int)(-delta.y * 5);
+                D_PostEvent(&ev);
+            }
         }
     }
 
