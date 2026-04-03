@@ -61,8 +61,11 @@ int		skiptics;
 int		ticdup;
 int		maxsend;	// BACKUPTICS/(2*ticdup)-1
 
-/// Last time (I_GetTime) we received tics from each node
+/// Last time (I_GetTime) we received tics from each node.
+/// Timeout is only active after the first tic runs (prevents false
+/// disconnect during WAD loading when I_GetTime keeps ticking).
 static int	node_last_tic[MAXNETNODES];
+static int	timeout_active = 0;
 
 void D_ProcessEvents (void);
 void G_BuildTiccmd (ticcmd_t *cmd);
@@ -652,8 +655,18 @@ void TryRunTics (void)
     // get available tics
     NetUpdate ();
 
+    /// Activate timeout tracking after the first real tic runs,
+    /// so WAD loading time doesn't trigger a false disconnect.
+    if (netgame && !timeout_active)
+    {
+	int now = I_GetTime();
+	for (i=0 ; i<MAXNETNODES ; i++)
+	    node_last_tic[i] = now;
+	timeout_active = 1;
+    }
+
     /// Check for timed-out nodes (no tics received in 5 seconds)
-    if (netgame)
+    if (netgame && timeout_active)
     {
 	int now = I_GetTime();
 	for (i=1 ; i<doomcom->numnodes ; i++)
@@ -669,14 +682,13 @@ void TryRunTics (void)
 			break;
 
 		if (p < MAXPLAYERS)
+		{
 		    playeringame[p] = false;
-
-		strcpy (exitmsg, "Player 1 left the game");
-		if (p < MAXPLAYERS)
+		    strcpy (exitmsg, "Player 1 left the game");
 		    exitmsg[7] += p;
-		players[consoleplayer].message = exitmsg;
-
-		printf ("Node %i timed out (player %i disconnected)\n", i, p+1);
+		    players[consoleplayer].message = exitmsg;
+		    printf ("Node %i timed out (player %i disconnected)\n", i, p+1);
+		}
 
 		if (demorecording)
 		    G_CheckDemoStatus ();

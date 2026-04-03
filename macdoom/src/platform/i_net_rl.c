@@ -107,6 +107,13 @@ static void PacketGet(void)
         return;
     }
 
+    // Validate numtics to prevent buffer overflow from malformed packets
+    if (sw.numtics > BACKUPTICS)
+    {
+        doomcom->remotenode = -1;
+        return;
+    }
+
     for (i = 0; i < doomcom->numnodes; i++)
         if (fromaddress.sin_addr.s_addr == sendaddress[i].sin_addr.s_addr)
             break;
