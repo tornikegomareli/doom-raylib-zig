@@ -1,10 +1,10 @@
 class Macdoom < Formula
   desc "DOOM for macOS — the 1993 classic built with Raylib and Zig"
   homepage "https://github.com/tornikegomareli/doom-raylib-zig"
-  url "https://github.com/tornikegomareli/doom-raylib-zig/archive/refs/tags/v0.1.0.tar.gz"
-  sha256 "0488b06f469ce9e731c40562e7f2e7883e629566b8d19c52e6755eb938631f46"
+  url "https://github.com/tornikegomareli/doom-raylib-zig/archive/refs/tags/v0.2.0.tar.gz"
+  sha256 "bab70f0744576931d3a6225f9e1c306272c2789170820b8a4e302873aed01fb9"
   sha256 "" # to be filled after tagging tornikegomareli/doom-raylib-zig v0.1.0
-  version "0.1.0"
+  version "0.2.0"
   license "GPL-2.0-only"
 
   depends_on "zig" => :build
@@ -12,8 +12,8 @@ class Macdoom < Formula
   depends_on :macos
 
   resource "doom1.wad" do
-    url "https://github.com/tornikegomareli/doom-raylib-zig/archive/refs/tags/v0.1.0.tar.gz"
-  sha256 "0488b06f469ce9e731c40562e7f2e7883e629566b8d19c52e6755eb938631f46"
+    url "https://github.com/tornikegomareli/doom-raylib-zig/archive/refs/tags/v0.2.0.tar.gz"
+  sha256 "bab70f0744576931d3a6225f9e1c306272c2789170820b8a4e302873aed01fb9"
     sha256 "1d7d43be501e67d927e415e0b8f3e29c3bf33075e859721816f652a526cac771"
   end
 
