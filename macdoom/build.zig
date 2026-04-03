@@ -63,7 +63,7 @@ pub fn build(b: *std.Build) void {
             "f_finale.c",
             "f_wipe.c",
             "d_main.c",
-            "d_net.c",
+            // d_net.c compiled via compat (disconnect timeout)
             "d_items.c",
             // g_game.c compiled via compat (debug logging)
             "m_menu.c",
@@ -140,6 +140,7 @@ pub fn build(b: *std.Build) void {
             "p_setup_compat.c",
             "r_draw_compat.c",
             "g_game_compat.c",
+            "d_net_compat.c",
         },
         .flags = doom_cflags,
     });
